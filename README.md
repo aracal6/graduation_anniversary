@@ -35,6 +35,113 @@
 | 回忆照片中的情感  |百度人脸识别api |重要 | 
 | 回到当初拍照的地方寻找青春 | 地标识别api| 重要| 
 
+#### api调用
+- 百度--人脸识别
+输入
+```
+import requests
+import pprint
+import json
+
+def baidu_api(image):
+    
+    rdata={
+        'grant_type':'client_credentials',
+        'client_id':'WmpfQoLhZ5x3RGSZixLzKOGt',
+        'client_secret':'NtzU3nnLrageTLZLqRwuvzx48hpkSmrs'
+    }
+   
+    r=requests.post('https://aip.baidubce.com/oauth/2.0/token',data=rdata).json()
+    access_token=r['access_token']
+    api_url='https://aip.baidubce.com/rest/2.0/face/v3/detect'+'?access_token='+access_token
+    
+    Header={
+        'Content-Type':'application/json'
+    }
+    data={ 'image':image,
+        'image_type':'URL',
+        'face_field':'gender,age,emotion',
+        'max_face_num':10,
+         }
+    r=requests.post(api_url,data=data).json()
+    return r
+
+baidu_api('https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1568634172081&di=1501f8a43f3a099910a9f27f8368bdb6&imgtype=0&src=http%3A%2F%2Fi0.hdslb.com%2Fbfs%2Farticle%2F9c3112ad34d2e010d8d137b88ca0f14704308cbd.jpg')
+```
+输出
+```
+{'error_code': 0,
+ 'error_msg': 'SUCCESS',
+ 'log_id': 747956986453063891,
+ 'timestamp': 1568645306,
+ 'cached': 0,
+ 'result': {'face_num': 3,
+  'face_list': [{'face_token': '5a93616d60d0c629c72125ee093e2ccd',
+    'location': {'left': 635.87,
+     'top': 156.77,
+     'width': 107,
+     'height': 101,
+     'rotation': -35},
+    'face_probability': 1,
+    'angle': {'yaw': 26.36, 'pitch': 1.9, 'roll': -36.92},
+    'gender': {'type': 'male', 'probability': 1},
+    'age': 32,
+    'emotion': {'type': 'neutral', 'probability': 0.9}},
+   {'face_token': 'c24acdea30cf419320a252abbea5ef06',
+    'location': {'left': 316.39,
+     'top': 186.63,
+     'width': 102,
+     'height': 103,
+     'rotation': 39},
+    'face_probability': 1,
+    'angle': {'yaw': -17.96, 'pitch': 6.16, 'roll': 37.74},
+    'gender': {'type': 'male', 'probability': 1},
+    'age': 30,
+    'emotion': {'type': 'happy', 'probability': 0.77}},
+   {'face_token': '35eadcd732ab669f8ab3a25696afad63',
+    'location': {'left': 446.89,
+     'top': 145.46,
+     'width': 101,
+     'height': 92,
+     'rotation': -6},
+    'face_probability': 1,
+    'angle': {'yaw': 37.79, 'pitch': 22.37, 'roll': -20.33},
+    'gender': {'type': 'male', 'probability': 1},
+    'age': 31,
+    'emotion': {'type': 'happy', 'probability': 0.9}}]}}
+```
+- 地标识别api
+输入
+```
+model_url = vision_base_url + "models"
+headers   = {'Ocp-Apim-Subscription-Key': subscription_key}
+models    = requests.get(model_url, headers=headers).json()
+[model["name"] for model in models["models"]]
+image_url = "https://upload.wikimedia.org/wikipedia/commons/f/f6/" + \
+    "Bunker_Hill_Monument_2005.jpg"
+landmark_analyze_url = vision_base_url + "models/landmarks/analyze"
+print(landmark_analyze_url)
+headers  = {'Ocp-Apim-Subscription-Key': subscription_key}
+params   = {'model': 'landmarks'}
+data     = {'url': image_url}
+response = requests.post(landmark_analyze_url, headers=headers, params=params, json=data)
+response.raise_for_status()
+
+analysis      = response.json()
+print(json.dumps(response.json()))
+assert analysis["result"]["landmarks"] is not []
+
+landmark_name = analysis["result"]["landmarks"][0]["name"].capitalize()
+image = Image.open(BytesIO(requests.get(image_url).content))
+plt.imshow(image)
+plt.axis("off")
+_ = plt.title(landmark_name, size="x-large", y=-0.1)
+```
+输出
+```
+https://westcentralus.api.cognitive.microsoft.com/vision/v2.0/models/landmarks/analyze
+{"result": {"landmarks": [{"name": "Bunker Hill Monument", "confidence": 0.976844847202301}]}, "requestId": "eabc4892-07dc-4d80-b48f-4b657d3b8fae", "metadata": {"width": 1200, "height": 1600, "format": "Jpeg"}}
+```
 #### 价值主张练习
 ##### 一句话版本
 - 智能毕业纪念册，用情感分析与地标识别，帮助你回忆青春，回到过去。
